@@ -1,7 +1,11 @@
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+
+import javax.swing.JFrame;
+
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
 
 public class Main
 {
@@ -14,13 +18,15 @@ public class Main
    public static void main(String[] args)
    {
       System.out.println("Welcome to OpenCV " + Core.VERSION);
-      Mat m = new Mat(5, 10, CvType.CV_8UC1, new Scalar(0));
-      System.out.println("OpenCV Mat: " + m);
-      Mat mr1 = m.row(1);
-      mr1.setTo(new Scalar(1));
-      Mat mc5 = m.col(5);
-      mc5.setTo(new Scalar(5));
-      System.out.println("OpenCV Mat data:\n" + m.dump());
+      Mat m = Highgui.imread("images/pepersgrad.pgm");
+
+      JFrame f = new JFrame("PGM");
+      f.setLayout(new FlowLayout());
+      f.setSize(new Dimension(512, 512));
+      f.setLocationRelativeTo(null); // Center Screen
+      f.setVisible(true);
+      f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
    }
 
 }
