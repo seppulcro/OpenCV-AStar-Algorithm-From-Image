@@ -1,4 +1,5 @@
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -14,6 +15,12 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 
+/**
+ * 
+ * @author 11907_MarcoSacristao
+ * 
+ */
+
 public class Main
 {
    JFrame    f;
@@ -22,9 +29,9 @@ public class Main
    Dimension imageSize    = null;
    Mat       pgm          = Highgui.imread(imgPath("peppersgrad.pgm"));
 
-   static
+   private static void parseImage()
    {
-      System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
    }
 
    private String imgPath(String s)
@@ -40,19 +47,20 @@ public class Main
    {
       f = new JFrame("A* + PGM");
       p = new JPanel(new CardLayout());
+      f.getContentPane().setBackground(Color.orange);
       f.add(p);
       f.setResizable(false);
       f.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
-      f.setLocationRelativeTo(null); // Center Screen
+      f.setLocationRelativeTo(null);
       f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    }
 
    private void generateImage()
    {
       String filename = imgPath("generated.png");
+      this.drawPixel(pgm, 191, 48, 0, 255, 0); // Start Pixel
+      this.drawPixel(pgm, 260, 508, 255, 0, 0); // End Pixel
       // A* Here
-      Core.line(pgm, new Point(15, 10), new Point(15, 15), new Scalar(255, 255,
-               0));
       Highgui.imwrite(filename, pgm);
       p.add(new JLabel(new ImageIcon(filename)));
       f.pack();
@@ -68,8 +76,14 @@ public class Main
       f.setVisible(true);
    }
 
+   private void drawPixel(Mat img, int x, int y, int r, int g, int b)
+   {
+      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 7);
+   }
+
    public void run()
    {
+      this.parseImage();
       this.createWindow();
       this.generateImage();
       this.showWindow();
