@@ -3,10 +3,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
-import java.io.BufferedReader;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Scanner;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -21,15 +23,18 @@ import org.opencv.highgui.Highgui;
 
 public class GUI
 {
-   JFrame     f;
-   JPanel     p;
-   String     imagesFolder = "images";
-   Dimension  imageSize    = null;
-   String     filename     = "peppersgrad.pgm";
-   Mat        pgm          = Highgui.imread(imgPath(filename));
-   int        pgmWidth     = 0;
-   int        pgmHeight    = 0;
-   double[][] matrix;
+   JFrame    f;
+   JPanel    p;
+   String    imagesFolder = "images";
+   Dimension imageSize    = null;
+   String    filename     = "peppersgrad.pgm";
+   Mat       pgm          = Highgui.imread(filePath(filename));
+   String    magicNumber  = null;
+   int       maxValue     = 0;
+   int       pgmWidth     = 0;
+   int       pgmHeight    = 0;
+   Point     startPoint   = null;
+   Point     endPoint     = null;
 
    static
    {
@@ -38,43 +43,39 @@ public class GUI
 
    private void parsePGM()
    {
+      InputStream i = null;
       try
       {
-         InputStream i = new FileInputStream(imgPath(filename));
-         BufferedReader b = new BufferedReader(new InputStreamReader(i));
-         String magicNumber = b.readLine();
-         while (b.readLine().startsWith("#"))
-         {
-            String line = b.readLine();
-            String[] wh = line.replaceAll("^\\D+", "").split("\\D+");
-            this.pgmWidth = Integer.parseInt(wh[0]);
-            this.pgmHeight = Integer.parseInt(wh[0]);
-            this.matrix = new double[this.pgmWidth][this.pgmHeight];
-         }
-         for (int row = 0; row < this.pgmWidth; row++)
-            for (int col = 0; col < this.pgmWidth; col++)
-               matrix[row][col] = Integer.parseInt(b.readLine());
-         System.out
-                  .format("PGM file: '%s' \\ Type: %s \\ Width: %d \\ Height: %d \\ Total: %d\n",
-                           filename, magicNumber, this.pgmHeight,
-                           this.pgmWidth, this.pgmHeight * this.pgmWidth);
-         b.close();
+         i = new FileInputStream(filePath(filename));
       } catch (Throwable t)
       {
-         t.printStackTrace(System.err);
-         return;
+         t.printStackTrace();
       }
-
+      Scanner s = new Scanner(i);
+      this.magicNumber = s.nextLine();
+      s.nextLine();
+      String line = s.nextLine();
+      String[] wh = line.replaceAll("^\\D+", "").split("\\D+"); // Split string
+      this.pgmWidth = Integer.parseInt(wh[0]);
+      this.pgmHeight = Integer.parseInt(wh[0]);
+      this.maxValue = Integer.parseInt(new String(s.nextLine()));
+      s.close();
    }
 
-   private String imgPath(String s)
+   public void generatePath() throws IOException
+   {
+      BufferedImage b = javax.imageio.ImageIO.read(new File(
+               filePath("generated.png")));
+      AStar path = new AStar(b, this.startPoint, this.endPoint);
+   }
+
+   public String filePath(String s)
    {
       String path = getClass().getProtectionDomain().getCodeSource()
                .getLocation().toString()
                + imagesFolder + "/" + s;
       path = path.replaceAll("file:", "");
       path = path.replaceAll(getClass().getName() + ".jar", "");
-      System.out.println("Caminho: " + path);
       return path;
    }
 
@@ -92,9 +93,14 @@ public class GUI
 
    private void generateImage()
    {
-      String filename = imgPath("generated.png");
-      this.drawPixel(pgm, 192, 48, 0, 255, 0); // Start Pixel
-      this.drawPixel(pgm, 260, 508, 255, 0, 0); // Start Pixel
+      String filename = filePath("generated.png");
+      this.startPoint = new Point(192, 48);
+      this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
+               255, 0);
+      this.endPoint = new Point(260, 508);
+      this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
+               255, 0);
+      this.drawPixel(pgm, 260, 508, 255, 0, 0);
       // A* Here
       Highgui.imwrite(filename, pgm);
       p.add(new JLabel(new ImageIcon(filename)));
