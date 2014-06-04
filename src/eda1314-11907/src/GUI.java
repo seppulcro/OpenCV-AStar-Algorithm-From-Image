@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
@@ -23,18 +24,19 @@ import org.opencv.highgui.Highgui;
 
 public class GUI
 {
-   JFrame    f;
-   JPanel    p;
-   String    imagesFolder = "images";
-   Dimension imageSize    = null;
-   String    filename     = "peppersgrad.pgm";
-   Mat       pgm          = Highgui.imread(filePath(filename));
-   String    magicNumber  = null;
-   int       maxValue     = 0;
-   int       pgmWidth     = 0;
-   int       pgmHeight    = 0;
-   Point     startPoint   = null;
-   Point     endPoint     = null;
+   JFrame                f;
+   JPanel                p;
+   String                imagesFolder = "images";
+   Dimension             imageSize    = null;
+   String                filename     = "peppersgrad.pgm";
+   Mat                   pgm          = Highgui.imread(filePath(filename));
+   String                magicNumber  = null;
+   int                   maxValue     = 0;
+   int                   pgmWidth     = 0;
+   int                   pgmHeight    = 0;
+   Point                 startPoint   = null;
+   Point                 endPoint     = null;
+   private BufferedImage b;
 
    static
    {
@@ -59,14 +61,23 @@ public class GUI
       this.pgmWidth = Integer.parseInt(wh[0]);
       this.pgmHeight = Integer.parseInt(wh[0]);
       this.maxValue = Integer.parseInt(new String(s.nextLine()));
+      System.out.format("File: %s \\", filePath(filename));
       s.close();
    }
 
-   public void generatePath() throws IOException
+   public void generatePath()
    {
-      BufferedImage b = javax.imageio.ImageIO.read(new File(
-               filePath("generated.png")));
-      AStar path = new AStar(b, this.startPoint, this.endPoint);
+      try
+      {
+         this.b = javax.imageio.ImageIO
+                  .read(new File(filePath("generated.png")));
+         System.out.println(b.getRGB(2, 0));
+      } catch (IOException e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      // AStar path = new AStar(b, this.startPoint, this.endPoint);
    }
 
    public String filePath(String s)
@@ -98,10 +109,16 @@ public class GUI
       this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
                255, 0);
       this.endPoint = new Point(260, 508);
-      this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
-               255, 0);
+      this.drawPixel(pgm, (int) this.endPoint.x, (int) this.endPoint.y, 0, 255,
+               0);
       this.drawPixel(pgm, 260, 508, 255, 0, 0);
-      // A* Here
+      ArrayList<Point> point = new AStar(this.b, this.startPoint,
+               this.endPoint, this.maxValue, this.pgm).getList();
+      for (Point points : point)
+      {
+         this.drawPixel(this.pgm, (int) points.x, (int) points.y, 0, 0, 255);
+      }
+
       Highgui.imwrite(filename, pgm);
       p.add(new JLabel(new ImageIcon(filename)));
       f.pack();
@@ -120,13 +137,14 @@ public class GUI
 
    private void drawPixel(Mat img, int x, int y, int r, int g, int b)
    {
-      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 6);
+      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 2);
    }
 
    public void run()
    {
       this.parsePGM();
       this.createWindow();
+      this.generatePath();
       this.generateImage();
       this.showWindow();
    }
