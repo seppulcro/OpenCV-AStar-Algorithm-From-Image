@@ -55,9 +55,10 @@ public class Main
             for (int col = 0; col < this.pgmWidth; col++)
                matrix[row][col] = Integer.parseInt(b.readLine());
          System.out
-                  .format("PGM file: '%s'\nType: %s\nWidth: %d\nHeight: %d\nTotal: %d\n",
+                  .format("PGM file: '%s' \\ Type: %s \\ Width: %d \\ Height: %d \\ Total: %d\n",
                            filename, magicNumber, this.pgmHeight,
                            this.pgmWidth, this.pgmHeight * this.pgmWidth);
+         b.close();
       } catch (Throwable t)
       {
          t.printStackTrace(System.err);
