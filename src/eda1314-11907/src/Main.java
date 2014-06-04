@@ -3,6 +3,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -15,22 +19,50 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 
-/**
- * 
- * @author 11907_MarcoSacristao
- * 
- */
-
 public class Main
 {
    JFrame    f;
    JPanel    p;
    String    imagesFolder = "images";
    Dimension imageSize    = null;
-   Mat       pgm          = Highgui.imread(imgPath("peppersgrad.pgm"));
+   String    filename     = "peppersgrad.pgm";
+   Mat       pgm          = Highgui.imread(imgPath(filename));
+   int       pgmWidth     = 0;
+   int       pgmHeight    = 0;
+   int[][]   matrix;
 
-   private static void parseImage()
+   static
    {
+      System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+   }
+
+   private void parsePGM()
+   {
+      try
+      {
+         InputStream i = new FileInputStream(imgPath(filename));
+         BufferedReader b = new BufferedReader(new InputStreamReader(i));
+         String magicNumber = b.readLine();
+         while (b.readLine().startsWith("#"))
+         {
+            String line = b.readLine();
+            String[] wh = line.replaceAll("^\\D+", "").split("\\D+");
+            this.pgmWidth = Integer.parseInt(wh[0]);
+            this.pgmHeight = Integer.parseInt(wh[0]);
+            this.matrix = new int[this.pgmWidth][this.pgmHeight];
+         }
+         for (int row = 0; row < this.pgmWidth; row++)
+            for (int col = 0; col < this.pgmWidth; col++)
+               matrix[row][col] = Integer.parseInt(b.readLine());
+         System.out
+                  .format("PGM file: '%s'\nType: %s\nWidth: %d\nHeight: %d\nTotal: %d\n",
+                           filename, magicNumber, this.pgmHeight,
+                           this.pgmWidth, this.pgmHeight * this.pgmWidth);
+      } catch (Throwable t)
+      {
+         t.printStackTrace(System.err);
+         return;
+      }
 
    }
 
@@ -47,7 +79,7 @@ public class Main
    {
       f = new JFrame("A* + PGM");
       p = new JPanel(new CardLayout());
-      f.getContentPane().setBackground(Color.orange);
+      f.getContentPane().setBackground(Color.darkGray);
       f.add(p);
       f.setResizable(false);
       f.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
@@ -59,7 +91,7 @@ public class Main
    {
       String filename = imgPath("generated.png");
       this.drawPixel(pgm, 191, 48, 0, 255, 0); // Start Pixel
-      this.drawPixel(pgm, 260, 508, 255, 0, 0); // End Pixel
+      this.drawPixel(pgm, 260, 508, 255, 0, 0); // Start Pixel
       // A* Here
       Highgui.imwrite(filename, pgm);
       p.add(new JLabel(new ImageIcon(filename)));
@@ -73,6 +105,7 @@ public class Main
       int windowX = Math.max(0, (screenSize.width - windowSize.width) / 2);
       int windowY = Math.max(0, (screenSize.height - windowSize.height) / 2);
       f.setLocation(windowX, windowY);
+      f.setIconImage(new ImageIcon(filename).getImage());
       f.setVisible(true);
    }
 
@@ -83,7 +116,7 @@ public class Main
 
    public void run()
    {
-      this.parseImage();
+      this.parsePGM();
       this.createWindow();
       this.generateImage();
       this.showWindow();
