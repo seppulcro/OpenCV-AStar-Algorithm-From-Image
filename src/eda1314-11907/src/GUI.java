@@ -21,15 +21,15 @@ import org.opencv.highgui.Highgui;
 
 public class GUI
 {
-   JFrame    f;
-   JPanel    p;
-   String    imagesFolder = "images";
-   Dimension imageSize    = null;
-   String    filename     = "peppersgrad.pgm";
-   Mat       pgm          = Highgui.imread(imgPath(filename));
-   int       pgmWidth     = 0;
-   int       pgmHeight    = 0;
-   int[][]   matrix;
+   JFrame     f;
+   JPanel     p;
+   String     imagesFolder = "images";
+   Dimension  imageSize    = null;
+   String     filename     = "peppersgrad.pgm";
+   Mat        pgm          = Highgui.imread(imgPath(filename));
+   int        pgmWidth     = 0;
+   int        pgmHeight    = 0;
+   double[][] matrix;
 
    static
    {
@@ -49,7 +49,7 @@ public class GUI
             String[] wh = line.replaceAll("^\\D+", "").split("\\D+");
             this.pgmWidth = Integer.parseInt(wh[0]);
             this.pgmHeight = Integer.parseInt(wh[0]);
-            this.matrix = new int[this.pgmWidth][this.pgmHeight];
+            this.matrix = new double[this.pgmWidth][this.pgmHeight];
          }
          for (int row = 0; row < this.pgmWidth; row++)
             for (int col = 0; col < this.pgmWidth; col++)
@@ -93,7 +93,7 @@ public class GUI
    private void generateImage()
    {
       String filename = imgPath("generated.png");
-      this.drawPixel(pgm, 191, 48, 0, 255, 0); // Start Pixel
+      this.drawPixel(pgm, 192, 48, 0, 255, 0); // Start Pixel
       this.drawPixel(pgm, 260, 508, 255, 0, 0); // Start Pixel
       // A* Here
       Highgui.imwrite(filename, pgm);
@@ -114,7 +114,7 @@ public class GUI
 
    private void drawPixel(Mat img, int x, int y, int r, int g, int b)
    {
-      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 4);
+      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 6);
    }
 
    public void run()

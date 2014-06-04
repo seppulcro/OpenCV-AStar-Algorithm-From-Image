@@ -3,15 +3,15 @@ import java.util.ArrayList;
 
 public class AStar
 {
-   int[][]          matrix;
+   double[][]       matrix;
    ArrayList<Point> closedList;
 
-   public AStar(int[][] matrix)
+   public AStar(double[][] matrix)
    {
       this.setMatrix(matrix);
    }
 
-   public void setMatrix(int[][] m)
+   public void setMatrix(double[][] m)
    {
       this.matrix = m;
    }
