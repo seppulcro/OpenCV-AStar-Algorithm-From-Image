@@ -5,6 +5,7 @@ import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -85,14 +86,15 @@ public class GUI
       f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    }
 
-   private void generateImage()
+   private void generateImage() throws IOException
    {
       String filename = filePath("generated.png");
       this.startPoint = new Point(192, 48);
       this.endPoint = new Point(260, 508);
-      ArrayList<Point> point = new AStar(this.b, this.startPoint,
-               this.endPoint, this.maxValue, this.pgm).getList();
-      for (Point points : point)
+      AStar astar = new AStar(this.b, this.startPoint, this.endPoint,
+               this.maxValue, this.pgm);
+      ArrayList<Point> path = astar.getList();
+      for (Point points : path)
       {
          this.drawPixel(this.pgm, (int) points.x, (int) points.y, 0, 0, 255, 1);
       }
@@ -102,6 +104,8 @@ public class GUI
                0, 6);
       Highgui.imwrite(filename, pgm);
       System.out.format("Generated: '%s'\n", filename);
+      astar.writeFile(filePath("output.txt"));
+      System.out.format("Output file created: %s\n", filePath("output.txt"));
       p.add(new JLabel(new ImageIcon(filename)));
       f.pack();
    }
@@ -122,7 +126,7 @@ public class GUI
       Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), t);
    }
 
-   public void run()
+   public void run() throws IOException
    {
       this.parsePGM();
       this.createWindow();
@@ -130,7 +134,7 @@ public class GUI
       this.showWindow();
    }
 
-   public static void main(String[] args)
+   public static void main(String[] args) throws IOException
    {
       System.out
                .format("A* Pathfinding and PGM parsing\n11907 - eMarco Sacristão \n");

@@ -9,14 +9,16 @@ import org.opencv.core.Point;
 
 public class AStar
 {
-   BufferedImage    b;
-   ArrayList<Point> closedList;
-   ArrayList<Point> openList;
-   Point            startPoint;
-   Point            endPoint;
-   Point            currentPoint;
-   int              max;
-   private Mat      pgm;
+   BufferedImage     b;
+   ArrayList<Point>  closedList;
+   ArrayList<Point>  openList;
+   ArrayList<String> timesList;
+   Point             startPoint;
+   Point             endPoint;
+   Point             currentPoint;
+   int               max;
+   private Mat       pgm;
+   long              totalTime = 0;
 
    public AStar(BufferedImage b, Point sP, Point eP, int max, Mat pgm)
    {
@@ -26,11 +28,14 @@ public class AStar
       this.endPoint = eP;
       this.currentPoint = sP;
       this.closedList = new ArrayList<Point>();
+      this.timesList = new ArrayList<String>();
       this.max = max;
-
       this.closedList.add(currentPoint);
+
+      int count = 1;
       while (!this.endPoint.equals(this.currentPoint))
       {
+         long time = System.nanoTime();
          this.openList = getNeighbours(this.currentPoint);
          ArrayList<Double> fValues = new ArrayList<Double>();
          for (Point point : this.openList)
@@ -49,6 +54,11 @@ public class AStar
          }
          this.currentPoint = this.openList.get(index);
          this.closedList.add(this.currentPoint);
+         time = (System.nanoTime() - time);
+         this.totalTime += time;
+         this.timesList.add(new String(count + " "
+                  + Long.toString(this.totalTime)));
+         count++;
       }
    }
 
@@ -103,11 +113,13 @@ public class AStar
 
    public void writeFile(String filename) throws IOException
    {
+      filename = filename.replaceAll("images:", "output");
       BufferedWriter out = null;
       out = new BufferedWriter(new FileWriter(filename));
-      for (Point points : this.closedList)
-      {
-
-      }
+      String results = timesList.toString();
+      results = results.replaceAll("\\[", "").replaceAll("\\]", "")
+               .replace(", ", "\n");
+      out.write(results);
+      out.close();
    }
 }
