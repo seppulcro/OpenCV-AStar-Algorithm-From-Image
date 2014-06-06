@@ -42,6 +42,9 @@ public class GUI
       System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
    }
 
+   /**
+    * Parses the header of the PGM file.
+    */
    private void parsePGM()
    {
       InputStream i = null;
@@ -64,6 +67,12 @@ public class GUI
       s.close();
    }
 
+   /**
+    * Returns the absolute path of a filename
+    * 
+    * @param s
+    * @return
+    */
    public String filePath(String s)
    {
       String path = getClass().getProtectionDomain().getCodeSource()
@@ -74,6 +83,9 @@ public class GUI
       return path;
    }
 
+   /**
+    * Creates a JFrame
+    */
    private void createWindow()
    {
       f = new JFrame("11907 - Marco Sacristão");
@@ -86,6 +98,13 @@ public class GUI
       f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
    }
 
+   /**
+    * Generates a new PNG image from the PGM file using OpenCV. Uses A* on the
+    * pgm matrix. Receives the path of pixels as a list and draws it on the PNG.
+    * Converts the PNG to an imageIcon and adds it to the JFrame.
+    * 
+    * @throws IOException
+    */
    private void generateImage() throws IOException
    {
       String filename = filePath("generated.png");
@@ -110,6 +129,9 @@ public class GUI
       f.pack();
    }
 
+   /**
+    * Shows the JFrame
+    */
    private void showWindow()
    {
       Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -121,11 +143,27 @@ public class GUI
       f.setVisible(true);
    }
 
+   /**
+    * Draws a pixel on a pgm Mat
+    * 
+    * @param img
+    * @param x
+    * @param y
+    * @param r
+    * @param g
+    * @param b
+    * @param t
+    */
    private void drawPixel(Mat img, int x, int y, int r, int g, int b, int t)
    {
       Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), t);
    }
 
+   /**
+    * Runs all the methods
+    * 
+    * @throws IOException
+    */
    public void run() throws IOException
    {
       this.parsePGM();

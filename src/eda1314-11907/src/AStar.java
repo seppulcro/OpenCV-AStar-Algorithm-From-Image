@@ -20,6 +20,17 @@ public class AStar
    private Mat       pgm;
    long              totalTime = 0;
 
+   /**
+    * Receives a buffered image (png) and starting and end points, also the max
+    * value of the color and the pgm matrix. It uses the PNG to get RGB value,
+    * converts it to gray scale for neighbour finding.
+    * 
+    * @param b
+    * @param sP
+    * @param eP
+    * @param max
+    * @param pgm
+    */
    public AStar(BufferedImage b, Point sP, Point eP, int max, Mat pgm)
    {
       this.setBufferedImage(b);
@@ -62,6 +73,12 @@ public class AStar
       }
    }
 
+   /**
+    * Gets the neighbours of a current point
+    * 
+    * @param current
+    * @return
+    */
    private ArrayList<Point> getNeighbours(Point current)
    {
       ArrayList<Point> neighbours = new ArrayList<Point>();
@@ -85,32 +102,66 @@ public class AStar
       return neighbours;
    }
 
+   /**
+    * Sets the buffered image (png)
+    * 
+    * @param b
+    */
    public void setBufferedImage(BufferedImage b)
    {
       this.b = b;
    }
 
+   /**
+    * Returns the optimal path (closedList)
+    * 
+    * @return
+    */
    public ArrayList<Point> getList()
    {
       return this.closedList;
    }
 
+   /**
+    * Returns the points color's intensity to the h method
+    * 
+    * @param p
+    * @return
+    */
    private double g(Point p)
    {
       return 1 - this.pgm.get((int) p.y, (int) p.x)[0] / this.max;
    }
 
+   /**
+    * Returns the distance between the current point and the end point
+    * 
+    * @param p
+    * @return
+    */
    private double h(Point p)
    {
       return Math.sqrt(Math.pow(p.x - this.endPoint.x, 2)
                + Math.pow(p.y - this.endPoint.y, 2));
    }
 
+   /**
+    * Divides h by 20 for better neighbour finding through the heuristic
+    * 
+    * @param p
+    * @return
+    */
    private double f(Point p)
    {
       return (((this.h(p))) / 20 + this.g(p));
    }
 
+   /**
+    * Write a file containing the execution times
+    * 
+    * @param filename
+    * @throws IOException
+    */
    public void writeFile(String filename) throws IOException
    {
       filename = filename.replaceAll("images:", "output");
