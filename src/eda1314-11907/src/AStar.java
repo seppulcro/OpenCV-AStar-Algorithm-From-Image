@@ -18,8 +18,6 @@ public class AStar
    int              max;
    private Mat      pgm;
 
-   // Double pixelValue = ((double) (byte) b.getRGB(2, 0) / this.maxValue);
-
    public AStar(BufferedImage b, Point sP, Point eP, int max, Mat pgm)
    {
       this.setBufferedImage(b);
@@ -100,7 +98,7 @@ public class AStar
 
    private double f(Point p)
    {
-      return (((this.h(p))) / 10 + this.g(p));
+      return (((this.h(p))) / 20 + this.g(p));
    }
 
    public void writeFile(String filename) throws IOException

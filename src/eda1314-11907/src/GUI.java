@@ -4,9 +4,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -61,23 +59,8 @@ public class GUI
       this.pgmWidth = Integer.parseInt(wh[0]);
       this.pgmHeight = Integer.parseInt(wh[0]);
       this.maxValue = Integer.parseInt(new String(s.nextLine()));
-      System.out.format("File: %s \\", filePath(filename));
+      System.out.format("File: '%s' \n", filePath(filename));
       s.close();
-   }
-
-   public void generatePath()
-   {
-      try
-      {
-         this.b = javax.imageio.ImageIO
-                  .read(new File(filePath("generated.png")));
-         System.out.println(b.getRGB(2, 0));
-      } catch (IOException e)
-      {
-         // TODO Auto-generated catch block
-         e.printStackTrace();
-      }
-      // AStar path = new AStar(b, this.startPoint, this.endPoint);
    }
 
    public String filePath(String s)
@@ -92,7 +75,7 @@ public class GUI
 
    private void createWindow()
    {
-      f = new JFrame("A* + PGM");
+      f = new JFrame("11907 - Marco Sacristão");
       p = new JPanel(new CardLayout());
       f.getContentPane().setBackground(Color.darkGray);
       f.add(p);
@@ -106,20 +89,19 @@ public class GUI
    {
       String filename = filePath("generated.png");
       this.startPoint = new Point(192, 48);
-      this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
-               255, 0);
       this.endPoint = new Point(260, 508);
-      this.drawPixel(pgm, (int) this.endPoint.x, (int) this.endPoint.y, 0, 255,
-               0);
-      this.drawPixel(pgm, 260, 508, 255, 0, 0);
       ArrayList<Point> point = new AStar(this.b, this.startPoint,
                this.endPoint, this.maxValue, this.pgm).getList();
       for (Point points : point)
       {
-         this.drawPixel(this.pgm, (int) points.x, (int) points.y, 0, 0, 255);
+         this.drawPixel(this.pgm, (int) points.x, (int) points.y, 0, 0, 255, 1);
       }
-
+      this.drawPixel(pgm, (int) this.startPoint.x, (int) this.startPoint.y, 0,
+               255, 0, 6);
+      this.drawPixel(pgm, (int) this.endPoint.x, (int) this.endPoint.y, 255, 0,
+               0, 6);
       Highgui.imwrite(filename, pgm);
+      System.out.format("Generated: '%s'\n", filename);
       p.add(new JLabel(new ImageIcon(filename)));
       f.pack();
    }
@@ -135,22 +117,25 @@ public class GUI
       f.setVisible(true);
    }
 
-   private void drawPixel(Mat img, int x, int y, int r, int g, int b)
+   private void drawPixel(Mat img, int x, int y, int r, int g, int b, int t)
    {
-      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), 2);
+      Core.line(img, new Point(x, y), new Point(x, y), new Scalar(b, g, r), t);
    }
 
    public void run()
    {
       this.parsePGM();
       this.createWindow();
-      this.generatePath();
       this.generateImage();
       this.showWindow();
    }
 
    public static void main(String[] args)
    {
+      System.out
+               .format("A* Pathfinding and PGM parsing\n11907 - eMarco Sacristão \n");
+      System.out
+               .format("Green: Staring point.\nRed: Ending point.\nBlue: Optimal path.\n");
       new GUI().run();
    }
 }
